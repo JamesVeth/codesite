@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Append Example</title>
+</head>
+<body>
+    <h3>Testing Input/Output and File Writing</h3>
+    <p>Github Test.</p>
+    <label for="message">Enter Text To Append:</label>
+    <br>
+    <textarea id="message" name="txt_message" rows="4" cols="50"></textarea>
+    <br>
+    <button type="button" onclick="submitText()">Submit</button>
+    <h4>The last 10 appended words stored in the Railway text storage are:</h4>
+    <div id="wordList"></div>
+
+    <script>
+    async function submitText() {
+        const message = document.getElementById('message').value;
+        const response = await fetch('/api/appendText', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message })
+        });
+        const result = await response.json();
+        document.getElementById('wordList').innerText = result.words.join(' ');
+    }
+    </script>
+</body>
+</html>
