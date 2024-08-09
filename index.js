@@ -1,39 +1,43 @@
 const express = require('express');
 const mysql = require('mysql2');
-const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 const app = express();
-const port = process.env.PORT || 3000;
+app.use(express.json());
 
-app.use(bodyParser.json());
-app.use(express.static('public'));
-
-// 
-
-// MySQL connection
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
 });
 
-connection.connect();
+db.connect((err) => {
+    if (err) {
+        console.error('Database connection failed:', err.stack);
+        return;
+    }
+    console.log('Connected to database');
+});
 
-// Endpoint to append text
-app.post('/api/appendText', (req, res) => {
-  const content = req.body.content;
-  const words = content.split(' ').slice(-10).join(' ');
+app.post('/add-text', (req, res) => {
+    const { content } = req.body;
 
-  connection.query('INSERT INTO text_logs (content) VALUES (?)', [content], (err) => {
-    if (err) throw err;
-    connection.query('SELECT content FROM text_logs ORDER BY id DESC LIMIT 10', (err, results) => {
-      if (err) throw err;
-      const last10Words = results.map(row => row.content).join(' ').split(' ').slice(-10);
-      res.json({ words: last10Words });
+    const query = 'INSERT INTO text_entries (content) VALUES (?)';
+    db.query(query, [content], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database insertion failed' });
+        }
+
+        res.status(200).json({ message: 'Text entry added successfully!', id: results.insertId });
     });
-  });
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
