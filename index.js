@@ -25,14 +25,12 @@ db.connect((err) => {
 
 app.post('/add-text', (req, res) => {
     const { content } = req.body;
-
     const query = 'INSERT INTO text_entries (content) VALUES (?)';
     db.query(query, [content], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Database insertion failed' });
         }
-
         res.status(200).json({ message: 'Text entry added successfully!', id: results.insertId });
     });
 });
