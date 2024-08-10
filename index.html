@@ -25,7 +25,7 @@
             body: JSON.stringify({ content: message })
         });
         const result = await response.json();
-        document.getElementById('wordList').innerText = result.words.join(' ');
+        document.getElementById('wordList').innerText = result.message;
     }
     </script>
 </body>
