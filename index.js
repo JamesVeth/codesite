@@ -8,8 +8,10 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Serve static files (HTML, CSS, etc.)
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve the index.html file from the root directory
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
